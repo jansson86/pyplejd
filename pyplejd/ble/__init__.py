@@ -37,8 +37,10 @@ class MeshDevice:
             self.rssi = rssi
 
         self.last_seen = datetime.now()
-        self.rssi = max(self.rssi, rssi)
-
+        if first_seen:
+            self.rssi = rssi
+        else:
+            self.rssi = max(self.rssi, rssi)
         return first_seen
 
     def update():
@@ -270,7 +272,7 @@ class PlejdMesh:
             return False
         try:
             _CONNECTION_LOG.debug("Authenticating with plejd mesh")
-            await client.write_gatt_char(gatt.PLEJD_AUTH, b"\0x00", response=True)
+            await client.write_gatt_char(gatt.PLEJD_AUTH, b"\x00", response=True)
             challenge = await client.read_gatt_char(gatt.PLEJD_AUTH)
             response = auth_response(self._crypto_key, challenge)
             await client.write_gatt_char(gatt.PLEJD_AUTH, response, response=True)
